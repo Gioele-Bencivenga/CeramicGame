@@ -48,9 +48,9 @@ class MainScene extends Scene {
 		// camera.movementThreshold = 0.5;
 		camera.trackSpeedX = 80;
 		camera.trackCurve = 0.3;
-        camera.trackSpeedY = 50;
-        camera.zoom = 0.1;
-        camera.clampToContentBounds = false;
+		camera.trackSpeedY = 50;
+		camera.zoom = 0.1;
+		camera.clampToContentBounds = false;
 		// camera.brakeNearBounds(0, 0);
 
 		// We update the camera after everything else has been updated
