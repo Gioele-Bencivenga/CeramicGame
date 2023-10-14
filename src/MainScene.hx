@@ -1,62 +1,99 @@
 package;
 
+import ceramic.Screen;
+import ceramic.Color;
 import ceramic.Quad;
+import ceramic.Camera;
 import ceramic.Scene;
 
 class MainScene extends Scene {
+	var player:Player;
 
-    var logo:Quad;
+	/**
+	 * The camera ajusting the display to follow the player
+	 */
+	var camera:Camera;
 
-    override function preload() {
+	/**
+	 * Add any asset you want to load here
+	 */
+	override function preload() {}
 
-        // Add any asset you want to load here
+	override function create() {
+		initPhysics();
+		initPlayer();
+		initCamera();
+	}
 
-        assets.add(Images.CERAMIC);
+	function initPhysics() {
+		app.arcade.autoUpdateWorldBounds = false;
+		app.arcade.world.setBounds(x, y, width, height);
 
-    }
+		initArcadePhysics();
+	}
 
-    override function create() {
+	function initPlayer() {
+		player = new Player();
+		player.depth = 10;
+		player.pos(width * 0.5, height * 0.5);
+		player.gravityY = 200;
+	}
 
-        // Called when scene has finished preloading
+	function initCamera() {
+		// Configure camera
+		camera = new Camera();
 
-        // Display logo
-        logo = new Quad();
-        logo.texture = assets.texture(Images.CERAMIC);
-        logo.anchor(0.5, 0.5);
-        logo.pos(width * 0.5, height * 0.5);
-        logo.scale(0.0001);
-        logo.alpha = 0;
-        add(logo);
+		// We tweak some camera settings to make it work
+		// better with our low-res pixel art display
+		// camera.movementThreshold = 0.5;
+		camera.trackSpeedX = 80;
+		camera.trackCurve = 0.3;
+        camera.trackSpeedY = 50;
+        camera.zoom = 0.1;
+        camera.clampToContentBounds = false;
+		// camera.brakeNearBounds(0, 0);
 
-        // Create some logo scale "in" animation
-        logo.tween(ELASTIC_EASE_IN_OUT, 0.75, 0.0001, 1.0, function(value, time) {
-            logo.alpha = value;
-            logo.scale(value);
-        });
+		// We update the camera after everything else has been updated
+		// so that we are sure it won't be based on some intermediate state
+		app.onPostUpdate(this, updateCamera);
 
-        // Print some log
-        log.success('Hello from ceramic :)');
+		// Update the camera once right away
+		// (we use a very big delta so that it starts at a stable position)
+		updateCamera(99999);
+	}
 
-    }
+	function updateCamera(delta:Float) {
+		// Tell the camera what is the size of the viewport
+		camera.viewportWidth = width;
+		camera.viewportHeight = height;
 
-    override function update(delta:Float) {
+		// Tell the camera what is the size and position of the content
+		// camera.contentX = 0;
+		// camera.contentY = 0;
+		// camera.contentWidth = tilemap.tilemapData.width;
+		// camera.contentHeight = tilemap.tilemapData.height;
 
-        // Here, you can add code that will be executed at every frame
+		// Tell the camera what position to target (the player's position)
+		camera.followTarget = true;
+		camera.targetX = player.x;
+		camera.targetY = player.y;
 
-    }
+		// Then, let the camera handle these infos
+		// so that it updates itself accordingly
+		camera.update(delta);
+	}
 
-    override function resize(width:Float, height:Float) {
+	override function update(delta:Float) {
+		// Here, you can add code that will be executed at every frame
+	}
 
-        // Called everytime the scene size has changed
+	override function resize(width:Float, height:Float) {
+		// Called everytime the scene size has changed
+	}
 
-    }
+	override function destroy() {
+		// Perform any cleanup before final destroy
 
-    override function destroy() {
-
-        // Perform any cleanup before final destroy
-
-        super.destroy();
-
-    }
-
+		super.destroy();
+	}
 }

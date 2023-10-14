@@ -1,5 +1,6 @@
 package;
 
+import tutorial.GettingStartedScene;
 import ceramic.Entity;
 import ceramic.Color;
 import ceramic.InitSettings;
