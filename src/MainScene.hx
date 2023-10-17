@@ -1,5 +1,9 @@
 package;
 
+import ceramic.TilemapLayerData;
+import ceramic.TilemapData;
+import ceramic.Tilemap;
+import ceramic.Tileset;
 import ceramic.Screen;
 import ceramic.Color;
 import ceramic.Quad;
@@ -14,20 +18,70 @@ class MainScene extends Scene {
 	 */
 	var camera:Camera;
 
+	var tilemap:Tilemap;
+
 	/**
 	 * Add any asset you want to load here
 	 */
-	override function preload() {}
+	override function preload() {
+		assets.add(Images.IMAGES__TILE);
+	}
 
 	override function create() {
+		initMap();
 		initPhysics();
 		initPlayer();
 		initCamera();
 	}
 
+	function initMap() {
+		// Create our very simple one-tile tileset
+        var tileset = new Tileset();
+        // 0 = no tile
+        // 1 = our single tile
+        tileset.firstGid = 1;
+        tileset.tileSize(8, 8);
+        tileset.texture = assets.texture(Images.IMAGES__TILE);
+        tileset.columns = 1;
+
+        // Create our tile layer
+        var layerData = new TilemapLayerData();
+        layerData.name = 'main';
+        layerData.grid(10, 10);
+        layerData.tileSize(8, 8);
+        layerData.tiles = [
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 0, 1, 1, 1, 0, 0, 1, 1, 1,
+            1, 0, 0, 0, 0, 0, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 0, 1, 1, 1, 0, 0, 0, 1,
+            1, 1, 1, 1, 0, 1, 1, 0, 0, 1,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+        ];
+
+        // Create the tilemap data holding our tile layer
+        var tilemapData = new TilemapData();
+        tilemapData.size(
+            layerData.columns * tileset.tileWidth,
+            layerData.rows * tileset.tileHeight
+        );
+        tilemapData.tilesets = [tileset];
+        tilemapData.layers = [layerData];
+
+        // Then create the actual tilemap visual and assign it tilemap data
+        tilemap = new Tilemap();
+        tilemap.tilemapData = tilemapData;
+        tilemap.pos(8, 8);
+
+        add(tilemap);
+	}
+	
 	function initPhysics() {
 		app.arcade.autoUpdateWorldBounds = false;
-		app.arcade.world.setBounds(x, y, width, height);
+		app.arcade.world.setBounds(x, y, width * 2, height * 2);
 
 		initArcadePhysics();
 	}
@@ -68,10 +122,10 @@ class MainScene extends Scene {
 		camera.viewportHeight = height;
 
 		// Tell the camera what is the size and position of the content
-		// camera.contentX = 0;
-		// camera.contentY = 0;
-		// camera.contentWidth = tilemap.tilemapData.width;
-		// camera.contentHeight = tilemap.tilemapData.height;
+		camera.contentX = 0;
+		camera.contentY = 0;
+		camera.contentWidth = width / 2;
+		camera.contentHeight = height / 2;
 
 		// Tell the camera what position to target (the player's position)
 		camera.followTarget = true;
