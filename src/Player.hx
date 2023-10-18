@@ -79,10 +79,10 @@ class Player extends Quad {
 		// animation = 'idle';
 
 		// Default direction
-		scaleX = -1;
+		// scaleX = -1;
 
 		// Actual size used by physics
-		size(18, 22);
+		size(1, 2);
 		// frameOffset(-3, -2);
 
 		// Init input
@@ -127,24 +127,25 @@ class Player extends Quad {
 	}
 
 	function updateMovement(delta:Float) {
+		var velX = 0;
+		var velY = 0;
 		if (inputMap.pressed(RIGHT)) {
-			velocityX = 100;
+			velX = 100;
 			scaleX = -1;
 		}
-		else if(inputMap.pressed(LEFT)){
-			velocityX = -100;
+		if (inputMap.pressed(LEFT)) {
+			velX = -100;
 			scaleX = 1;
 		}
-		else if(inputMap.pressed(UP)){
-			velocityY = -300;
+		if (inputMap.pressed(UP)) {
+			velY = -100;
 			scaleY = 1;
 		}
-		else if(inputMap.pressed(DOWN)){
-			velocityY = 100;
+		if (inputMap.pressed(DOWN)) {
+			velY = 100;
 			scaleY = -1;
-		}else {
-			velocityX = 0;
-			velocityY = 0;
 		}
+		velocityX = velX;
+		velocityY = velY;
 	}
 }
