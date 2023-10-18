@@ -4,13 +4,19 @@ import ceramic.TilemapLayerData;
 import ceramic.TilemapData;
 import ceramic.Tilemap;
 import ceramic.Tileset;
-import ceramic.Screen;
-import ceramic.Color;
-import ceramic.Quad;
 import ceramic.Camera;
 import ceramic.Scene;
+import ceramic.StateMachine;
+
+enum GameState {
+	TITLE_SCREEN;
+	PLAYING;
+	GAME_OVER;
+}
 
 class MainScene extends Scene {
+	@component var machine = new StateMachine<GameState>();
+
 	var player:Player;
 
 	/**
@@ -36,52 +42,60 @@ class MainScene extends Scene {
 
 	function initMap() {
 		// Create our very simple one-tile tileset
-        var tileset = new Tileset();
-        // 0 = no tile
-        // 1 = our single tile
-        tileset.firstGid = 1;
-        tileset.tileSize(8, 8);
-        tileset.texture = assets.texture(Images.IMAGES__TILE);
-        tileset.columns = 1;
+		var tileset = new Tileset();
+		// 0 = no tile
+		// 1 = our single tile
+		tileset.firstGid = 1;
+		tileset.tileSize(8, 8);
+		tileset.texture = assets.texture(Images.IMAGES__TILE);
+		tileset.columns = 1;
 
-        // Create our tile layer
-        var layerData = new TilemapLayerData();
-        layerData.name = 'main';
-        layerData.grid(10, 10);
-        layerData.tileSize(8, 8);
-        layerData.tiles = [
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            1, 0, 1, 1, 1, 0, 0, 1, 1, 1,
-            1, 0, 0, 0, 0, 0, 0, 1, 0, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 0, 0, 1, 1, 1, 0, 0, 0, 1,
-            1, 1, 1, 1, 0, 1, 1, 0, 0, 1,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-        ];
+		// Create our tile layer
+		var layerData = new TilemapLayerData();
+		layerData.name = 'main';
+		layerData.grid(26, 21);
+		layerData.tileSize(8, 8);
+		layerData.tiles = [
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		];
 
-        // Create the tilemap data holding our tile layer
-        var tilemapData = new TilemapData();
-        tilemapData.size(
-            layerData.columns * tileset.tileWidth,
-            layerData.rows * tileset.tileHeight
-        );
-        tilemapData.tilesets = [tileset];
-        tilemapData.layers = [layerData];
+		// Create the tilemap data holding our tile layer
+		var tilemapData = new TilemapData();
+		tilemapData.size(layerData.columns * tileset.tileWidth, layerData.rows * tileset.tileHeight);
+		tilemapData.tilesets = [tileset];
+		tilemapData.layers = [layerData];
 
-        // Then create the actual tilemap visual and assign it tilemap data
-        tilemap = new Tilemap();
-        tilemap.tilemapData = tilemapData;
-        tilemap.pos(8, 8);
+		// Then create the actual tilemap visual and assign it tilemap data
+		tilemap = new Tilemap();
+		tilemap.tilemapData = tilemapData;
+		tilemap.pos(0, 0);
 
-        add(tilemap);
+		add(tilemap);
 	}
-	
+
 	function initPhysics() {
 		app.arcade.autoUpdateWorldBounds = false;
-		app.arcade.world.setBounds(x, y, width * 2, height * 2);
+		app.arcade.world.setBounds(x, y, tilemap.tilemapData.width, tilemap.tilemapData.height);
 
 		initArcadePhysics();
 	}
@@ -89,23 +103,19 @@ class MainScene extends Scene {
 	function initPlayer() {
 		player = new Player();
 		player.depth = 10;
-		player.pos(width * 0.5, height * 0.5);
-		player.gravityY = 200;
+		player.pos(tilemap.tilemapData.width - 10, tilemap.tilemapData.height - 10);
+		player.gravityY = 10;
 	}
 
 	function initCamera() {
 		// Configure camera
 		camera = new Camera();
 
-		// We tweak some camera settings to make it work
-		// better with our low-res pixel art display
-		// camera.movementThreshold = 0.5;
-		camera.trackSpeedX = 80;
-		camera.trackCurve = 0.3;
-		camera.trackSpeedY = 50;
-		camera.zoom = 0.1;
+		// camera.trackSpeedX = 80;
+		// camera.trackCurve = 0.3;
+		// camera.trackSpeedY = 50;
+		camera.zoom = 1;
 		camera.clampToContentBounds = false;
-		// camera.brakeNearBounds(0, 0);
 
 		// We update the camera after everything else has been updated
 		// so that we are sure it won't be based on some intermediate state
@@ -124,8 +134,8 @@ class MainScene extends Scene {
 		// Tell the camera what is the size and position of the content
 		camera.contentX = 0;
 		camera.contentY = 0;
-		camera.contentWidth = width / 2;
-		camera.contentHeight = height / 2;
+		camera.contentWidth = tilemap.tilemapData.width;
+		camera.contentHeight = tilemap.tilemapData.height;
 
 		// Tell the camera what position to target (the player's position)
 		camera.followTarget = true;
@@ -135,6 +145,16 @@ class MainScene extends Scene {
 		// Then, let the camera handle these infos
 		// so that it updates itself accordingly
 		camera.update(delta);
+
+		// Now that the camera has updated,
+		// set the content position from the computed data
+		tilemap.x = camera.contentTranslateX;
+		tilemap.y = camera.contentTranslateY;
+
+		// Update tile clipping
+		// (disables tiles that are outside viewport)
+		tilemap.clipTiles(Math.floor(camera.x - camera.viewportWidth * 0.5), Math.floor(camera.y - camera.viewportHeight * 0.5),
+			Math.ceil(camera.viewportWidth) + tilemap.tilemapData.maxTileWidth, Math.ceil(camera.viewportHeight) + tilemap.tilemapData.maxTileHeight);
 	}
 
 	override function update(delta:Float) {
