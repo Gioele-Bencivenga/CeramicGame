@@ -1,5 +1,6 @@
 package;
 
+import ceramic.Visual;
 import ceramic.TilemapLayerData;
 import ceramic.TilemapData;
 import ceramic.Tilemap;
@@ -25,6 +26,12 @@ class MainScene extends Scene {
 	var camera:Camera;
 
 	var tilemap:Tilemap;
+	/**
+	 * The layer displaying player, world, ecc.
+	 * 
+	 * We'll translate this layer's content using the camera, while hud layer will remain static.
+	 */
+	var gameLayer:Visual;
 
 	/**
 	 * Add any asset you want to load here
@@ -34,9 +41,13 @@ class MainScene extends Scene {
 	}
 
 	override function create() {
+		gameLayer = new Visual();
+		gameLayer.size(width, height);
+		add(gameLayer);
+
 		initMap();
-		initPhysics();
 		initPlayer();
+		initPhysics();
 		initCamera();
 	}
 
@@ -90,7 +101,9 @@ class MainScene extends Scene {
 		tilemap.tilemapData = tilemapData;
 		tilemap.pos(0, 0);
 
-		add(tilemap);
+		tilemap.initArcadePhysics();
+		
+		gameLayer.add(tilemap);
 	}
 
 	function initPhysics() {
@@ -98,6 +111,7 @@ class MainScene extends Scene {
 		app.arcade.world.setBounds(x, y, tilemap.tilemapData.width, tilemap.tilemapData.height);
 
 		initArcadePhysics();
+
 	}
 
 	function initPlayer() {
@@ -105,6 +119,7 @@ class MainScene extends Scene {
 		player.depth = 10;
 		player.pos(tilemap.tilemapData.width - 10, tilemap.tilemapData.height - 10);
 		player.gravityY = 10;
+		gameLayer.add(player);
 	}
 
 	function initCamera() {
@@ -148,8 +163,8 @@ class MainScene extends Scene {
 
 		// Now that the camera has updated,
 		// set the content position from the computed data
-		tilemap.x = camera.contentTranslateX;
-		tilemap.y = camera.contentTranslateY;
+		gameLayer.x = camera.contentTranslateX;
+		gameLayer.y = camera.contentTranslateY;
 
 		// Update tile clipping
 		// (disables tiles that are outside viewport)

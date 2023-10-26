@@ -82,7 +82,7 @@ class Player extends Quad {
 		// scaleX = -1;
 
 		// Actual size used by physics
-		size(1, 2);
+		size(5, 6);
 		// frameOffset(-3, -2);
 
 		// Init input
