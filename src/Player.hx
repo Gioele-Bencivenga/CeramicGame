@@ -1,3 +1,6 @@
+import arcade.Body;
+import ceramic.Group;
+import ceramic.Tilemap;
 import ceramic.ArcadeWorld;
 import ceramic.Quad;
 import ceramic.SpriteSheet;
@@ -47,11 +50,22 @@ class Player extends Quad {
 	 */
 	var inputMap = new InputMap<PlayerInput>();
 
+	/**
+	 * A smaller physics body
+	 * 
+	 * Taken from pixel platformer sample, no clue why there are 2
+	 */
+	public var dotBodyBottom(default, null) = new Body(0, 0, 2, 2);
+
+	/**
+	 * A smaller physics body
+	 * 
+	 * Taken from pixel platformer sample, no clue why there are 2
+	 */
+	public var dotBodyTop(default, null) = new Body(0, 0, 2, 2);
+
 	public function new() {
 		super();
-
-		// We'll set size ourselves
-		// autoComputeSize = false;
 
 		initArcadePhysics();
 
@@ -72,9 +86,6 @@ class Player extends Quad {
 		// Correct anchor
 		anchor(0.5, 0.5);
 
-		// Ensure the final/visible position will always be rounded
-		// quad.roundTranslation = 1;
-
 		// Default animation
 		// animation = 'idle';
 
@@ -83,7 +94,6 @@ class Player extends Quad {
 
 		// Actual size used by physics
 		size(5, 6);
-		// frameOffset(-3, -2);
 
 		// Init input
 		bindInput();
@@ -129,23 +139,49 @@ class Player extends Quad {
 	function updateMovement(delta:Float) {
 		var velX = 0;
 		var velY = 0;
+		var velChange = 500;
 		if (inputMap.pressed(RIGHT)) {
-			velX = 100;
+			velX = velChange;
 			scaleX = -1;
 		}
 		if (inputMap.pressed(LEFT)) {
-			velX = -100;
+			velX = -velChange;
 			scaleX = 1;
 		}
 		if (inputMap.pressed(UP)) {
-			velY = -100;
+			velY = -velChange;
 			scaleY = 1;
 		}
 		if (inputMap.pressed(DOWN)) {
-			velY = 100;
+			velY = velChange;
 			scaleY = -1;
 		}
-		velocityX = velX;
-		velocityY = velY;
+
+		//if (velX != 0) {
+		//	velocityX = velX;
+		//}
+		//if (velY != 0) {
+		//	velocityY = velY;
+		//}
+		acceleration(velX, velY);
+	}
+
+	public function updatePhysics(delta:Float, world:ArcadeWorld, tilemap:Tilemap /*, boxes:Group<Box>*/) {
+		// Update dot body
+		updateDotBodies();
+
+		// Collide player with boxes
+		// world.collide(this, boxes);
+
+		// Collide player with tilemap at each frame
+		world.collide(this, tilemap);
+	}
+
+	function updateDotBodies() {
+		dotBodyBottom.x = x - dotBodyBottom.width * 0.5;
+		dotBodyBottom.y = y - dotBodyBottom.height;
+
+		dotBodyTop.x = x - dotBodyTop.width * 0.5;
+		dotBodyTop.y = y - height;
 	}
 }

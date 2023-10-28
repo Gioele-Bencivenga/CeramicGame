@@ -18,26 +18,30 @@ enum GameState {
 class MainScene extends Scene {
 	@component var machine = new StateMachine<GameState>();
 
-	var player:Player;
-
 	/**
-	 * The camera ajusting the display to follow the player
+	 * The camera ajusting the display to follow the player.
 	 */
 	var camera:Camera;
 
-	var tilemap:Tilemap;
 	/**
 	 * The layer displaying player, world, ecc.
 	 * 
 	 * We'll translate this layer's content using the camera, while hud layer will remain static.
 	 */
-	var gameLayer:Visual;
+	 var gameLayer:Visual;
+	 
+	 /**
+	  * The loaded tilemap in ceramic format.
+	  */
+	  var tilemap:Tilemap;
+	  
+	  var player:Player;
 
-	/**
-	 * Add any asset you want to load here
-	 */
-	override function preload() {
-		assets.add(Images.IMAGES__TILE);
+	  /**
+	   * Add any asset you want to load here
+	   */
+	   override function preload() {
+		   assets.add(Images.IMAGES__TILE);
 	}
 
 	override function create() {
@@ -45,13 +49,13 @@ class MainScene extends Scene {
 		gameLayer.size(width, height);
 		add(gameLayer);
 
-		initMap();
+		initTileMap();
 		initPlayer();
 		initPhysics();
 		initCamera();
 	}
 
-	function initMap() {
+	function initTileMap() {
 		// Create our very simple one-tile tileset
 		var tileset = new Tileset();
 		// 0 = no tile
@@ -63,7 +67,7 @@ class MainScene extends Scene {
 
 		// Create our tile layer
 		var layerData = new TilemapLayerData();
-		layerData.name = 'main';
+		layerData.name = 'walls';
 		layerData.grid(26, 21);
 		layerData.tileSize(8, 8);
 		layerData.tiles = [
@@ -101,8 +105,6 @@ class MainScene extends Scene {
 		tilemap.tilemapData = tilemapData;
 		tilemap.pos(0, 0);
 
-		tilemap.initArcadePhysics();
-		
 		gameLayer.add(tilemap);
 	}
 
@@ -110,15 +112,25 @@ class MainScene extends Scene {
 		app.arcade.autoUpdateWorldBounds = false;
 		app.arcade.world.setBounds(x, y, tilemap.tilemapData.width, tilemap.tilemapData.height);
 
-		initArcadePhysics();
+		tilemap.initArcadePhysics();
+		tilemap.collidableLayers = ['walls'];
+		tilemap.layer('walls').checkCollision(true, true, true, true);
 
+		app.arcade.onUpdate(this, updatePhysics);
+	}
+
+	function updatePhysics(delta:Float) {
+		player.updatePhysics(delta, app.arcade.world, tilemap);
 	}
 
 	function initPlayer() {
 		player = new Player();
 		player.depth = 10;
 		player.pos(tilemap.tilemapData.width - 10, tilemap.tilemapData.height - 10);
-		player.gravityY = 10;
+		player.gravityY = 150;
+		player.drag(150, 70);
+		player.maxVelocity(100, 100);
+		player.mass = 0.1;
 		gameLayer.add(player);
 	}
 
