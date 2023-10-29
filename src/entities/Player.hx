@@ -1,3 +1,5 @@
+package entities;
+
 import arcade.Body;
 import ceramic.Group;
 import ceramic.Tilemap;
@@ -139,22 +141,26 @@ class Player extends Quad {
 	function updateMovement(delta:Float) {
 		var velX = 0;
 		var velY = 0;
-		var velChange = 500;
+		var velChange = 1000;
 		if (inputMap.pressed(RIGHT)) {
 			velX = velChange;
 			scaleX = -1;
+			rotation = -90;
 		}
 		if (inputMap.pressed(LEFT)) {
 			velX = -velChange;
 			scaleX = 1;
+			rotation = 90;
 		}
 		if (inputMap.pressed(UP)) {
 			velY = -velChange;
 			scaleY = 1;
+			rotation = 180;
 		}
 		if (inputMap.pressed(DOWN)) {
 			velY = velChange;
 			scaleY = -1;
+			rotation = -180;
 		}
 
 		//if (velX != 0) {
