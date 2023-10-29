@@ -128,8 +128,8 @@ class MainScene extends Scene {
 		player = new Player();
 		player.depth = 10;
 		player.pos(tilemap.tilemapData.width - 10, tilemap.tilemapData.height - 10);
-		player.gravityY = 200;
-		player.drag(150, 150);
+		player.gravityY = 150;
+		player.drag(120, 120);
 		player.maxVelocity(100, 100);
 		player.mass = 0.1;
 		gameLayer.add(player);

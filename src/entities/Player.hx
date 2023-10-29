@@ -139,36 +139,45 @@ class Player extends Quad {
 	}
 
 	function updateMovement(delta:Float) {
+		var desiredRotation = 0;
 		var velX = 0;
 		var velY = 0;
-		var velChange = 1000;
+		var velChange = 500;
 		if (inputMap.pressed(RIGHT)) {
 			velX = velChange;
 			scaleX = -1;
-			rotation = -90;
+			desiredRotation = 90;
 		}
 		if (inputMap.pressed(LEFT)) {
 			velX = -velChange;
 			scaleX = 1;
-			rotation = 90;
+			desiredRotation = 270;
 		}
 		if (inputMap.pressed(UP)) {
 			velY = -velChange;
 			scaleY = 1;
-			rotation = 180;
+			desiredRotation = 0;
 		}
 		if (inputMap.pressed(DOWN)) {
 			velY = velChange;
 			scaleY = -1;
-			rotation = -180;
+			desiredRotation = 180;
 		}
 
-		//if (velX != 0) {
+		if (rotation < desiredRotation) {
+			angularVelocity = 500;
+		} else if (rotation > desiredRotation) {
+			angularVelocity = -500;
+		}else{
+			angularVelocity = 0;
+		}
+
+		// if (velX != 0) {
 		//	velocityX = velX;
-		//}
-		//if (velY != 0) {
+		// }
+		// if (velY != 0) {
 		//	velocityY = velY;
-		//}
+		// }
 		acceleration(velX, velY);
 	}
 
