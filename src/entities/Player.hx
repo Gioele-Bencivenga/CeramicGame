@@ -139,45 +139,51 @@ class Player extends Quad {
 	}
 
 	function updateMovement(delta:Float) {
-		var desiredRotation = 0;
+		var targetRotation = rotation;
 		var velX = 0;
 		var velY = 0;
 		var velChange = 500;
-		if (inputMap.pressed(RIGHT)) {
-			velX = velChange;
-			scaleX = -1;
-			desiredRotation = 90;
-		}
-		if (inputMap.pressed(LEFT)) {
-			velX = -velChange;
-			scaleX = 1;
-			desiredRotation = 270;
-		}
 		if (inputMap.pressed(UP)) {
 			velY = -velChange;
-			scaleY = 1;
-			desiredRotation = 0;
+			targetRotation = 0;
+		}
+		if (inputMap.pressed(RIGHT)) {
+			velX = velChange;
+			targetRotation = 90;
+			if(inputMap.pressed(UP)){
+				targetRotation = 45;
+			}
 		}
 		if (inputMap.pressed(DOWN)) {
 			velY = velChange;
-			scaleY = -1;
-			desiredRotation = 180;
+			targetRotation = 180;
+		}
+		if (inputMap.pressed(LEFT)) {
+			velX = -velChange;
+			targetRotation = -90;
+			if(inputMap.pressed(UP)){
+				targetRotation = -45;
+			}
 		}
 
+		// nice trick to get the closest rotation path by calculating
+		// the difference in angle between desired and current rotation
+		// and adding 360 to it if less than -180, subtracting 360 from it if more
+		// https://www.youtube.com/watch?v=3WloQupH_PQ
+		var diff = targetRotation - rotation;
+		diff < -180 ? diff += 360 : diff -= 360;
+
+		var desiredRotation = rotation + diff; 
+		
+		//rotation = desiredRotation;
 		if (rotation < desiredRotation) {
 			angularVelocity = 500;
 		} else if (rotation > desiredRotation) {
 			angularVelocity = -500;
-		}else{
+		} else {
 			angularVelocity = 0;
 		}
 
-		// if (velX != 0) {
-		//	velocityX = velX;
-		// }
-		// if (velY != 0) {
-		//	velocityY = velY;
-		// }
 		acceleration(velX, velY);
 	}
 
