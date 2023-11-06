@@ -158,16 +158,13 @@ class MainScene extends Scene {
 		gameLayer.add(player);
 	}
 
-	var targetZoom = 1.0;
-
 	function initCamera() {
-		// Configure camera
 		camera = new Camera();
 
 		// camera.trackSpeedX = 80;
 		// camera.trackCurve = 0.3;
 		// camera.trackSpeedY = 50;
-		camera.zoom = targetZoom;
+		camera.zoom = 1.0;
 		camera.clampToContentBounds = false;
 
 		// We update the camera after everything else has been updated
@@ -180,7 +177,6 @@ class MainScene extends Scene {
 	}
 
 	function updateCamera(delta:Float) {
-		camera.zoom = targetZoom;
 		// Tell the camera what is the size of the viewport
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
@@ -193,8 +189,7 @@ class MainScene extends Scene {
 
 		// Tell the camera what position to target (the player's position)
 		camera.followTarget = true;
-		camera.targetX = player.x;
-		camera.targetY = player.y;
+		camera.target(player.x, player.y);
 
 		// Then, let the camera handle these infos
 		// so that it updates itself accordingly
@@ -204,7 +199,8 @@ class MainScene extends Scene {
 		// set the content position from the computed data
 		gameLayer.x = camera.contentTranslateX;
 		gameLayer.y = camera.contentTranslateY;
-
+		gameLayer.scale(camera.zoom, camera.zoom);
+		
 		// Update tile clipping
 		// (disables tiles that are outside viewport)
 		tilemap.clipTiles(Math.floor(camera.x - camera.viewportWidth * 0.5), Math.floor(camera.y - camera.viewportHeight * 0.5),
@@ -218,7 +214,7 @@ class MainScene extends Scene {
 
 		Im.begin('Options', 300);
 		Im.expanded();
-		Im.slideFloat('zoom', Im.float(targetZoom), 0, 100, 1);
+		Im.slideFloat('zoom', Im.float(camera.zoom), 0.01, 5);
 		Im.end();
 	}
 
