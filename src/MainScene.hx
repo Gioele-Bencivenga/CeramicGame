@@ -1,5 +1,6 @@
 package;
 
+import ceramic.Text;
 import entities.Player;
 import ceramic.Visual;
 import ceramic.TilemapLayerData;
@@ -9,6 +10,7 @@ import ceramic.Tileset;
 import ceramic.Camera;
 import ceramic.Scene;
 import ceramic.StateMachine;
+import elements.Im;
 
 enum GameState {
 	TITLE_SCREEN;
@@ -38,11 +40,15 @@ class MainScene extends Scene {
 	  
 	  var player:Player;
 
+	  var text:Text;
+
 	  /**
 	   * Add any asset you want to load here
 	   */
 	   override function preload() {
 		   assets.add(Images.IMAGES__TILE);
+		
+		   assets.add(Fonts.FONTS__PIXELLARI);
 	}
 
 	override function create() {
@@ -54,6 +60,23 @@ class MainScene extends Scene {
 		initPlayer();
 		initPhysics();
 		initCamera();
+
+		// Force "nearest neighbor" rendering on the pixellari font,
+        // because that's a "pixel" font
+        for (page in assets.font(Fonts.FONTS__PIXELLARI).pages) {
+            page.filter = NEAREST;
+        }
+
+        // Called when scene has finished preloading
+        text = new Text();
+        text.content = 'target rotation: ${player.targetRotation}\nplayer rotation: ${player.rotation}';
+        text.pointSize = 16;
+        text.pos(20, 20);
+        text.fitWidth = 400;
+		text.depth = 11;
+		text.font = assets.font(Fonts.FONTS__PIXELLARI);
+        add(text);
+
 	}
 
 	function initTileMap() {
@@ -135,6 +158,8 @@ class MainScene extends Scene {
 		gameLayer.add(player);
 	}
 
+	var targetZoom = 1.0;
+
 	function initCamera() {
 		// Configure camera
 		camera = new Camera();
@@ -142,7 +167,7 @@ class MainScene extends Scene {
 		// camera.trackSpeedX = 80;
 		// camera.trackCurve = 0.3;
 		// camera.trackSpeedY = 50;
-		camera.zoom = 1;
+		camera.zoom = targetZoom;
 		camera.clampToContentBounds = false;
 
 		// We update the camera after everything else has been updated
@@ -155,6 +180,7 @@ class MainScene extends Scene {
 	}
 
 	function updateCamera(delta:Float) {
+		camera.zoom = targetZoom;
 		// Tell the camera what is the size of the viewport
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
@@ -187,6 +213,13 @@ class MainScene extends Scene {
 
 	override function update(delta:Float) {
 		// Here, you can add code that will be executed at every frame
+
+		text.content = 'target rotation: ${player.targetRotation}\nplayer rotation: ${player.rotation}';
+
+		Im.begin('Options', 300);
+		Im.expanded();
+		Im.slideFloat('zoom', Im.float(targetZoom), 0, 100, 1);
+		Im.end();
 	}
 
 	override function resize(width:Float, height:Float) {

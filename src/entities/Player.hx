@@ -66,6 +66,8 @@ class Player extends Quad {
 	 */
 	public var dotBodyTop(default, null) = new Body(0, 0, 2, 2);
 
+	public var targetRotation:Float;
+
 	public function new() {
 		super();
 
@@ -139,49 +141,79 @@ class Player extends Quad {
 	}
 
 	function updateMovement(delta:Float) {
-		var targetRotation = rotation;
 		var velX = 0;
 		var velY = 0;
 		var velChange = 500;
+		var rotChange = 500;
 		if (inputMap.pressed(UP)) {
 			velY = -velChange;
 			targetRotation = 0;
+			if (inputMap.pressed(RIGHT)) {
+				targetRotation = 45;
+			}
+			if (inputMap.pressed(LEFT)) {
+				targetRotation = -45;
+			}
 		}
 		if (inputMap.pressed(RIGHT)) {
 			velX = velChange;
 			targetRotation = 90;
-			if(inputMap.pressed(UP)){
+			if (inputMap.pressed(UP)) {
 				targetRotation = 45;
+			}
+			if (inputMap.pressed(DOWN)) {
+				targetRotation = 135;
 			}
 		}
 		if (inputMap.pressed(DOWN)) {
 			velY = velChange;
 			targetRotation = 180;
+			if (inputMap.pressed(RIGHT)) {
+				targetRotation = 135;
+			}
+			if (inputMap.pressed(LEFT)) {
+				targetRotation = -135;
+			}
 		}
 		if (inputMap.pressed(LEFT)) {
 			velX = -velChange;
 			targetRotation = -90;
-			if(inputMap.pressed(UP)){
+			if (inputMap.pressed(UP)) {
 				targetRotation = -45;
 			}
+			if (inputMap.pressed(DOWN)) {
+				targetRotation = -135;
+			}
+		}
+		if (!inputMap.pressed(UP) && !inputMap.pressed(RIGHT) && !inputMap.pressed(DOWN) && !inputMap.pressed(LEFT)) {
+			targetRotation = null;
 		}
 
-		// nice trick to get the closest rotation path by calculating
-		// the difference in angle between desired and current rotation
-		// and adding 360 to it if less than -180, subtracting 360 from it if more
-		// https://www.youtube.com/watch?v=3WloQupH_PQ
-		var diff = targetRotation - rotation;
-		diff < -180 ? diff += 360 : diff -= 360;
+		if (targetRotation != null) {
+			// nice trick that should get the closest rotation path by calculating
+			// the difference in angle between desired and current rotation
+			// and adding 360 to it if less than -180, subtracting 360 from it if more
+			// https://www.youtube.com/watch?v=3WloQupH_PQ
+			var diff = targetRotation - rotation;
+			diff < -180 ? diff += 360 : diff -= 360;
 
-		var desiredRotation = rotation + diff; 
-		
-		//rotation = desiredRotation;
-		if (rotation < desiredRotation) {
-			angularVelocity = 500;
-		} else if (rotation > desiredRotation) {
-			angularVelocity = -500;
+			var desiredRotation = rotation + diff;
+
+			if (rotation < desiredRotation) {
+				angularVelocity = rotChange;
+			} else if (rotation > desiredRotation) {
+				angularVelocity = -rotChange;
+			} else {
+				angularVelocity = 0;
+			}
 		} else {
-			angularVelocity = 0;
+			if (angularVelocity > 0) {
+				angularVelocity--;
+			} else if (angularVelocity < 0) {
+				angularVelocity++;
+			} else {
+				angularVelocity = 0;
+			}
 		}
 
 		acceleration(velX, velY);
