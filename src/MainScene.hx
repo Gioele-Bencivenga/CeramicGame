@@ -1,5 +1,6 @@
 package;
 
+import worldgen.Generator;
 import ceramic.Text;
 import entities.Player;
 import ceramic.Visual;
@@ -81,7 +82,6 @@ class MainScene extends Scene {
 	}
 
 	function initTileMap() {
-		
 		// Create our very simple one-tile tileset
 		var tileset = new Tileset();
 		// 0 = no tile
@@ -92,9 +92,10 @@ class MainScene extends Scene {
 		tileset.columns = 1;
 
 		// create the map generator (automatically generates a map)
-		var gen = new Generator(500, 200);
-		gen.generateCave(400, 0, 100);
-		
+		var gen = new Generator();
+		gen.map = gen.initMap();
+		gen.map = gen.generateCave(gen.map, gen.mapHeight, 100, 100);
+
 		// Create our tile layer
 		var layerData = new TilemapLayerData();
 		layerData.name = 'walls';
@@ -134,7 +135,7 @@ class MainScene extends Scene {
 	function initPlayer() {
 		player = new Player();
 		player.depth = 10;
-		player.pos(tilemap.tilemapData.width/2, tilemap.tilemapData.height - 20);
+		player.pos(tilemap.tilemapData.width / 2, tilemap.tilemapData.height - 20);
 		player.gravityY = 150;
 		player.drag(120, 120);
 		player.maxVelocity(100, 100);
