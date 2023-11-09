@@ -12,6 +12,8 @@ import ceramic.Scene;
 import ceramic.StateMachine;
 import elements.Im;
 
+using Lambda;
+
 enum GameState {
 	TITLE_SCREEN;
 	PLAYING;
@@ -31,24 +33,24 @@ class MainScene extends Scene {
 	 * 
 	 * We'll translate this layer's content using the camera, while hud layer will remain static.
 	 */
-	 var gameLayer:Visual;
-	 
-	 /**
-	  * The loaded tilemap in ceramic format.
-	  */
-	  var tilemap:Tilemap;
-	  
-	  var player:Player;
+	var gameLayer:Visual;
 
-	  var text:Text;
+	/**
+	 * The loaded tilemap in ceramic format.
+	 */
+	var tilemap:Tilemap;
 
-	  /**
-	   * Add any asset you want to load here
-	   */
-	   override function preload() {
-		   assets.add(Images.IMAGES__TILE);
-		
-		   assets.add(Fonts.FONTS__PIXELLARI);
+	var player:Player;
+
+	var text:Text;
+
+	/**
+	 * Add any asset you want to load here
+	 */
+	override function preload() {
+		assets.add(Images.IMAGES__TILE);
+
+		assets.add(Fonts.FONTS__PIXELLARI);
 	}
 
 	override function create() {
@@ -62,24 +64,24 @@ class MainScene extends Scene {
 		initCamera();
 
 		// Force "nearest neighbor" rendering on the pixellari font,
-        // because that's a "pixel" font
-        for (page in assets.font(Fonts.FONTS__PIXELLARI).pages) {
-            page.filter = NEAREST;
-        }
+		// because that's a "pixel" font
+		for (page in assets.font(Fonts.FONTS__PIXELLARI).pages) {
+			page.filter = NEAREST;
+		}
 
-        // Called when scene has finished preloading
-        text = new Text();
-        text.content = 'target rotation: ${player.targetRotation}\nplayer rotation: ${player.rotation}';
-        text.pointSize = 16;
-        text.pos(20, 20);
-        text.fitWidth = 400;
+		// Called when scene has finished preloading
+		text = new Text();
+		text.content = 'target rotation: ${player.targetRotation}\nplayer rotation: ${player.rotation}';
+		text.pointSize = 16;
+		text.pos(20, 20);
+		text.fitWidth = 400;
 		text.depth = 11;
 		text.font = assets.font(Fonts.FONTS__PIXELLARI);
-        add(text);
-
+		add(text);
 	}
 
 	function initTileMap() {
+		
 		// Create our very simple one-tile tileset
 		var tileset = new Tileset();
 		// 0 = no tile
@@ -89,34 +91,16 @@ class MainScene extends Scene {
 		tileset.texture = assets.texture(Images.IMAGES__TILE);
 		tileset.columns = 1;
 
+		// create the map generator (automatically generates a map)
+		var gen = new Generator(500, 200);
+		gen.generateCave(400, 0, 100);
+		
 		// Create our tile layer
 		var layerData = new TilemapLayerData();
 		layerData.name = 'walls';
-		layerData.grid(26, 21);
+		layerData.grid(gen.map[0].length, gen.map.length);
 		layerData.tileSize(8, 8);
-		layerData.tiles = [
-			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		];
+		layerData.tiles = gen.map.flatten();
 
 		// Create the tilemap data holding our tile layer
 		var tilemapData = new TilemapData();
@@ -150,7 +134,7 @@ class MainScene extends Scene {
 	function initPlayer() {
 		player = new Player();
 		player.depth = 10;
-		player.pos(tilemap.tilemapData.width - 10, tilemap.tilemapData.height - 10);
+		player.pos(tilemap.tilemapData.width/2, tilemap.tilemapData.height - 20);
 		player.gravityY = 150;
 		player.drag(120, 120);
 		player.maxVelocity(100, 100);
@@ -200,7 +184,7 @@ class MainScene extends Scene {
 		gameLayer.x = camera.contentTranslateX;
 		gameLayer.y = camera.contentTranslateY;
 		gameLayer.scale(camera.zoom, camera.zoom);
-		
+
 		// Update tile clipping
 		// (disables tiles that are outside viewport)
 		tilemap.clipTiles(Math.floor(camera.x - camera.viewportWidth * 0.5), Math.floor(camera.y - camera.viewportHeight * 0.5),
