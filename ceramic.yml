@@ -3,10 +3,9 @@ app:
     name: CeramicGame
     displayName: CeramicGame
     author: My Company
-    version: '1.0'
+    version: "1.0"
 
     plugins:
-
         # Uncomment plugins you want to enable
 
         # Arcade physics
@@ -65,4 +64,3 @@ app:
     defines:
         #- some_define
         #- some_define: 'some value'
-
